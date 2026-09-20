@@ -22,7 +22,9 @@ const $ = (id) => document.getElementById(id);
 const els = {
   city: $("citySelect"), latitude: $("latitude"), longitude: $("longitude"),
   date: $("dateSelect"), locate: $("locateBtn"), query: $("queryBtn"),
-  title: $("locationTitle"), clock: $("localClock"), marker: $("mapMarker"), glow: $("mapGlow"),
+  title: $("locationTitle"), clock: $("localClock"), map: $("worldMap"), mapSvg: $("mapSvg"),
+  marker: $("mapMarker"), glow: $("mapGlow"), cursor: $("mapCursor"), hoverCoordinate: $("mapHoverCoordinate"),
+  sunMarker: $("sunMarker"), sunHalo: $("sunHalo"),
   coordinate: $("mapCoordinate"), peak: $("peakLux"), meter: $("luxMeter"),
   sunrise: $("sunrise"), sunset: $("sunset"), daylight: $("daylight"), chart: $("chart"),
   avg: $("avgLux"), energy: $("solarEnergy"), cloud: $("cloudCover"), status: $("dataStatus"), toast: $("toast")
@@ -39,6 +41,10 @@ function init() {
   els.query.addEventListener("click", loadForecast);
   els.date.addEventListener("change", renderSelectedDay);
   els.locate.addEventListener("click", useLocation);
+  els.map.addEventListener("pointermove", previewMapPoint);
+  els.map.addEventListener("pointerleave", () => els.cursor.setAttribute("transform", "translate(-50 -50)"));
+  els.map.addEventListener("click", selectMapPoint);
+  els.map.addEventListener("keydown", nudgeMapPoint);
   renderEmptyChart();
   updateMap(31.2304, 121.4737);
   loadForecast();
@@ -72,6 +78,65 @@ function updateMap(lat, lon) {
   els.glow.setAttribute("cx", x.toFixed(1));
   els.glow.setAttribute("cy", y.toFixed(1));
   els.coordinate.textContent = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"} · ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? "E" : "W"}`;
+}
+
+function mapPointFromEvent(event) {
+  const point = els.mapSvg.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+  const matrix = els.mapSvg.getScreenCTM();
+  if (!matrix) return null;
+  const local = point.matrixTransform(matrix.inverse());
+  if (local.x < 0 || local.x > 1000 || local.y < 0 || local.y > 460) return null;
+  return {
+    x: local.x,
+    y: local.y,
+    lat: 90 - (local.y / 460) * 180,
+    lon: (local.x / 1000) * 360 - 180
+  };
+}
+
+function previewMapPoint(event) {
+  const point = mapPointFromEvent(event);
+  if (!point) return;
+  els.cursor.setAttribute("transform", `translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`);
+  els.hoverCoordinate.textContent = `${formatCoordinate(point.lat, true)} · ${formatCoordinate(point.lon, false)}`;
+}
+
+function selectMapPoint(event) {
+  const point = mapPointFromEvent(event);
+  if (!point) return;
+  applyMapSelection(point.lat, point.lon, true);
+}
+
+function nudgeMapPoint(event) {
+  const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+  if (!keys.includes(event.key)) return;
+  event.preventDefault();
+  let lat = Number(els.latitude.value);
+  let lon = Number(els.longitude.value);
+  const step = event.shiftKey ? 5 : 1;
+  if (event.key === "ArrowUp") lat += step;
+  if (event.key === "ArrowDown") lat -= step;
+  if (event.key === "ArrowLeft") lon -= step;
+  if (event.key === "ArrowRight") lon += step;
+  lat = Math.max(-90, Math.min(90, lat));
+  lon = ((lon + 180 + 360) % 360) - 180;
+  applyMapSelection(lat, lon, false);
+}
+
+function applyMapSelection(lat, lon, queryNow) {
+  els.latitude.value = lat.toFixed(4);
+  els.longitude.value = lon.toFixed(4);
+  els.city.value = String(CITIES.length - 1);
+  els.title.textContent = "地图选定点";
+  updateMap(lat, lon);
+  if (queryNow) loadForecast();
+}
+
+function formatCoordinate(value, latitude) {
+  const direction = latitude ? (value >= 0 ? "N" : "S") : (value >= 0 ? "E" : "W");
+  return `${Math.abs(value).toFixed(2)}° ${direction}`;
 }
 
 async function loadForecast() {
@@ -152,7 +217,7 @@ function renderSelectedDay() {
   els.energy.textContent = `${energy.toFixed(1)} kWh/m²`;
   els.cloud.textContent = `${Math.round(clouds)}%`;
   els.status.textContent = forecast.source === "live" ? "实时预测" : "离线晴空估算";
-  els.status.style.color = forecast.source === "live" ? "#728f1e" : "#b26d13";
+  els.status.style.color = forecast.source === "live" ? "#46b978" : "#b26d13";
   renderChart(samples);
 }
 
@@ -176,7 +241,7 @@ function renderChart(samples) {
   const points = samples.map((s, i) => i % 3 === 0 && s.lux > 0 ? `<circle class="point" cx="${x(i)}" cy="${yLux(s.lux)}" r="3"><title>${s.hour} · ${(s.lux/1000).toFixed(1)} klx</title></circle>` : "").join("");
 
   els.chart.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="24小时照度曲线">
-    <defs><linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d8ff63" stop-opacity=".58"/><stop offset="1" stop-color="#d8ff63" stop-opacity=".02"/></linearGradient></defs>
+    <defs><linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffd436" stop-opacity=".48"/><stop offset="1" stop-color="#ffd436" stop-opacity=".02"/></linearGradient></defs>
     ${yGrid}<path class="area" d="${area}"/><path class="radiation-line" d="${radLine}"/><path class="line" d="${line}"/>${points}${xLabels}
   </svg>`;
 }
@@ -237,8 +302,24 @@ function startClock(offsetSeconds) {
   const tick = () => {
     const local = new Date(Date.now() + offsetSeconds * 1000);
     els.clock.textContent = `${String(local.getUTCHours()).padStart(2,"0")}:${String(local.getUTCMinutes()).padStart(2,"0")}`;
+    updateSunPoint(new Date());
   };
   tick(); clockTimer = setInterval(tick, 30000);
+}
+
+function updateSunPoint(now) {
+  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
+  const day = Math.floor((now.getTime() - start) / 86400000);
+  const declination = 23.44 * Math.sin((2 * Math.PI / 365) * (day - 81));
+  const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
+  let longitude = 180 - utcHours * 15;
+  if (longitude > 180) longitude -= 360;
+  if (longitude < -180) longitude += 360;
+  const x = ((longitude + 180) / 360) * 1000;
+  const y = ((90 - declination) / 180) * 460;
+  els.sunMarker.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+  els.sunHalo.setAttribute("cx", x.toFixed(1));
+  els.sunHalo.setAttribute("cy", y.toFixed(1));
 }
 
 function setLoading(loading) {
@@ -248,7 +329,7 @@ function setLoading(loading) {
 
 function showToast(message, warning = false) {
   els.toast.textContent = message;
-  els.toast.style.borderLeft = `4px solid ${warning ? "#ff9a45" : "#d8ff63"}`;
+  els.toast.style.borderLeft = `4px solid ${warning ? "#ff9a45" : "#ffd436"}`;
   els.toast.classList.add("show");
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 3500);

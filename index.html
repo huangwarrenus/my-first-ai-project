@@ -13,17 +13,17 @@
 
   <header class="topbar">
     <a class="brand" href="#" aria-label="光域首页">
-      <span class="brand-mark" aria-hidden="true"><i></i></span>
-      <span>光域 <small>SOLAR ATLAS</small></span>
+      <span class="brand-wordmark">光域<span>.</span></span>
+      <small>SOLAR ATLAS</small>
     </a>
-    <div class="live-badge"><span></span> 天气数据在线</div>
+    <div class="live-badge"><span></span> 实时太阳数据</div>
   </header>
 
   <main>
     <section class="hero">
       <div>
         <p class="eyebrow">GLOBAL DAYLIGHT INTELLIGENCE</p>
-        <h1>看见今天的<br><em>每一束光</em></h1>
+        <h1>看见今天的<br><em>每一束光</em><i>.</i></h1>
         <p class="hero-copy">探索世界任意坐标的逐小时室外自然光照度，结合太阳位置与实时天气预报，帮助你安排摄影、建筑采光与户外活动。</p>
       </div>
       <div class="sun-orbit" aria-hidden="true">
@@ -81,29 +81,56 @@
           <div class="local-clock"><span>当地时间</span><strong id="localClock">--:--</strong></div>
         </div>
 
-        <div class="world-map" id="worldMap">
-          <svg viewBox="0 0 1000 460" role="img" aria-label="世界地图上的选定地点">
+        <div class="world-map" id="worldMap" tabindex="0" role="application" aria-label="交互式世界地图。点击地图可选择观测地点，方向键可微调位置。">
+          <svg id="mapSvg" viewBox="0 0 1000 460" role="img" aria-label="世界地图上的选定地点">
             <defs>
-              <radialGradient id="mapGlow"><stop offset="0" stop-color="#ffd36a" stop-opacity=".26"/><stop offset="1" stop-color="#ffd36a" stop-opacity="0"/></radialGradient>
+              <radialGradient id="locationGlowGradient"><stop offset="0" stop-color="#ffd36a" stop-opacity=".26"/><stop offset="1" stop-color="#ffd36a" stop-opacity="0"/></radialGradient>
+              <radialGradient id="sunGlow"><stop offset="0" stop-color="#fff0a0" stop-opacity=".7"/><stop offset=".35" stop-color="#ffd05a" stop-opacity=".23"/><stop offset="1" stop-color="#ffd05a" stop-opacity="0"/></radialGradient>
+              <linearGradient id="oceanGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7f9f3"/><stop offset="1" stop-color="#e8eee6"/></linearGradient>
             </defs>
+            <rect class="map-ocean" x="1" y="1" width="998" height="458" rx="18" fill="url(#oceanGradient)"/>
             <g class="grid-lines">
-              <path d="M0 115H1000M0 230H1000M0 345H1000" />
-              <path d="M125 0V460M250 0V460M375 0V460M500 0V460M625 0V460M750 0V460M875 0V460" />
+              <path d="M0 77H1000M0 153H1000M0 230H1000M0 307H1000M0 383H1000" />
+              <path d="M83 0V460M167 0V460M250 0V460M333 0V460M417 0V460M500 0V460M583 0V460M667 0V460M750 0V460M833 0V460M917 0V460" />
+              <path class="equator" d="M0 230H1000" />
+            </g>
+            <g class="map-labels" aria-hidden="true">
+              <text x="12" y="224">赤道 0°</text><text x="12" y="148">30°N</text><text x="12" y="302">30°S</text>
+              <text x="245" y="447">90°W</text><text x="495" y="447">0°</text><text x="738" y="447">90°E</text>
+            </g>
+            <g id="sunLayer" class="sun-layer" aria-label="太阳直射点">
+              <circle id="sunHalo" cx="500" cy="230" r="150" fill="url(#sunGlow)"/>
+              <g id="sunMarker" transform="translate(500 230)"><circle r="6"/><path d="M0-12V-17M0 12V17M-12 0H-17M12 0H17M-8-8L-12-12M8 8L12 12M8-8L12-12M-8 8L-12 12"/></g>
             </g>
             <g class="continents">
-              <path d="M76 104l44-47 73-22 91 27 42 53-24 34-51 9-22 56-38 17-31-47-53-25z"/>
-              <path d="M241 249l52 15 25 55-23 90-34 34-26-71-28-55z"/>
-              <path d="M438 92l43-42 75 11 48 34 39-16 94 23 67 60-27 38-83-3-40 40-49-19-44 30-60-20-26-52-54-31z"/>
-              <path d="M492 241l62 7 34 58-27 105-53-12-35-88z"/>
-              <path d="M791 318l60-28 61 32 8 54-67 29-51-32z"/>
-              <path d="M875 232l28-14 23 21-19 23z"/>
+              <path class="north-america" d="M55 92L91 55l49-11 28-27 42 12 23 31 57 12 37 31-9 27-30 9-15 29-29 6-18 40-29 21-22-19-17-35-39-10-7-24-43-20z"/>
+              <path class="central-america" d="M199 218l29 3 17 17 20 10-5 15-29-8-21-17z"/>
+              <path class="south-america" d="M251 258l42 7 26 24 10 38-18 36-8 50-27 34-19-24-8-46-24-42 3-49z"/>
+              <path class="greenland" d="M285 31l44-17 35 15-13 51-42 12-27-25z"/>
+              <path class="europe" d="M449 91l25-26 29 8 12-13 29 14 1 25-28 8-6 24-35 9-38-18z"/>
+              <path class="asia" d="M526 73l47-29 59 9 23 22 56-5 44 23 70 17 58 39-13 27-45 6-21 26-52-4-26 28-37-9-24 25-39-14-25-35-47-23-15-43-35-18z"/>
+              <path class="africa" d="M477 151l49-17 51 25 25 46-12 62-34 66-33-3-18-46-29-38-14-61z"/>
+              <path class="arabia" d="M579 184l43 13 21 38-36 18-27-25z"/>
+              <path class="india" d="M660 202l34 16-9 57-20 25-13-51z"/>
+              <path class="se-asia" d="M715 226l29 13 23 30-16 11-21-24-20-9z"/>
+              <path class="japan" d="M839 166l7 21-10 23-7-8 5-17z"/>
+              <path class="australia" d="M784 314l50-25 60 13 27 35-12 48-49 26-60-22-22-37z"/>
+              <path class="new-zealand" d="M932 362l9 24-8 24-8-19z"/>
+              <path class="madagascar" d="M604 307l10 16-7 35-10-10z"/>
+              <path class="antarctica" d="M54 432l84-12 82 10 90-12 92 14 100-11 95 12 99-13 99 11 103-9 64 17-35 20H91z"/>
             </g>
-            <circle id="mapGlow" class="map-glow" cx="837" cy="151" r="90" fill="url(#mapGlow)"/>
+            <g class="coast-detail" aria-hidden="true">
+              <path d="M123 83l25 29 39 4M164 181l43-3M280 291l23 45-10 45M493 112l24-5M532 168l34 32-9 56M629 120l31 29 40 4M742 114l28 31M813 330l43-13 42 22"/>
+            </g>
+            <circle id="mapGlow" class="map-glow" cx="837" cy="151" r="90" fill="url(#locationGlowGradient)"/>
             <g id="mapMarker" class="map-marker" transform="translate(837 151)">
-              <circle r="20" class="marker-wave"/><circle r="7" class="marker-dot"/><path d="M0 10L-5 25H5Z"/>
+              <circle r="20" class="marker-wave"/><circle r="11" class="marker-ring"/><circle r="6" class="marker-dot"/><path d="M0 9L-5 23H5Z"/>
             </g>
+            <g id="mapCursor" class="map-cursor" transform="translate(-50 -50)" aria-hidden="true"><path d="M-9 0H9M0-9V9"/><circle r="13"/></g>
           </svg>
           <div class="map-coordinate" id="mapCoordinate">31.2304° N · 121.4737° E</div>
+          <div class="map-hover-coordinate" id="mapHoverCoordinate">移动光标查看坐标</div>
+          <div class="map-hint"><span>＋</span> 点击地图选择地点</div>
         </div>
 
         <div class="metric-grid">
