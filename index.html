@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="查看世界各地每日阳光照度、日出日落与逐小时太阳辐照预测。" />
+  <title>光域 · 全球阳光照度</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="光域首页">
+      <span class="brand-mark" aria-hidden="true"><i></i></span>
+      <span>光域 <small>SOLAR ATLAS</small></span>
+    </a>
+    <div class="live-badge"><span></span> 天气数据在线</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">GLOBAL DAYLIGHT INTELLIGENCE</p>
+        <h1>看见今天的<br><em>每一束光</em></h1>
+        <p class="hero-copy">探索世界任意坐标的逐小时室外自然光照度，结合太阳位置与实时天气预报，帮助你安排摄影、建筑采光与户外活动。</p>
+      </div>
+      <div class="sun-orbit" aria-hidden="true">
+        <div class="sun-core"></div>
+        <div class="orbit orbit-a"></div>
+        <div class="orbit orbit-b"></div>
+        <span class="orbit-label">120,000 lx</span>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="control-panel card">
+        <div class="section-heading">
+          <span>01</span>
+          <div><p>OBSERVATION POINT</p><h2>观测地点</h2></div>
+        </div>
+
+        <label for="citySelect">快速选择城市</label>
+        <div class="select-wrap">
+          <select id="citySelect"></select>
+        </div>
+
+        <div class="coord-grid">
+          <div>
+            <label for="latitude">纬度</label>
+            <input id="latitude" type="number" min="-90" max="90" step="0.0001" value="31.2304" />
+          </div>
+          <div>
+            <label for="longitude">经度</label>
+            <input id="longitude" type="number" min="-180" max="180" step="0.0001" value="121.4737" />
+          </div>
+        </div>
+
+        <button id="locateBtn" class="ghost-btn" type="button">
+          <span aria-hidden="true">⌖</span> 使用我的位置
+        </button>
+
+        <label for="dateSelect">预测日期</label>
+        <div class="select-wrap">
+          <select id="dateSelect"><option>正在载入…</option></select>
+        </div>
+
+        <button id="queryBtn" class="primary-btn" type="button">
+          <span>获取照度预测</span><b aria-hidden="true">→</b>
+        </button>
+        <p class="hint">无需 API Key · 数据来自 Open-Meteo</p>
+      </aside>
+
+      <section class="visual-panel card">
+        <div class="panel-topline">
+          <div>
+            <p class="eyebrow">LIVE SOLAR MAP</p>
+            <h2 id="locationTitle">中国 · 上海</h2>
+          </div>
+          <div class="local-clock"><span>当地时间</span><strong id="localClock">--:--</strong></div>
+        </div>
+
+        <div class="world-map" id="worldMap">
+          <svg viewBox="0 0 1000 460" role="img" aria-label="世界地图上的选定地点">
+            <defs>
+              <radialGradient id="mapGlow"><stop offset="0" stop-color="#ffd36a" stop-opacity=".26"/><stop offset="1" stop-color="#ffd36a" stop-opacity="0"/></radialGradient>
+            </defs>
+            <g class="grid-lines">
+              <path d="M0 115H1000M0 230H1000M0 345H1000" />
+              <path d="M125 0V460M250 0V460M375 0V460M500 0V460M625 0V460M750 0V460M875 0V460" />
+            </g>
+            <g class="continents">
+              <path d="M76 104l44-47 73-22 91 27 42 53-24 34-51 9-22 56-38 17-31-47-53-25z"/>
+              <path d="M241 249l52 15 25 55-23 90-34 34-26-71-28-55z"/>
+              <path d="M438 92l43-42 75 11 48 34 39-16 94 23 67 60-27 38-83-3-40 40-49-19-44 30-60-20-26-52-54-31z"/>
+              <path d="M492 241l62 7 34 58-27 105-53-12-35-88z"/>
+              <path d="M791 318l60-28 61 32 8 54-67 29-51-32z"/>
+              <path d="M875 232l28-14 23 21-19 23z"/>
+            </g>
+            <circle id="mapGlow" class="map-glow" cx="837" cy="151" r="90" fill="url(#mapGlow)"/>
+            <g id="mapMarker" class="map-marker" transform="translate(837 151)">
+              <circle r="20" class="marker-wave"/><circle r="7" class="marker-dot"/><path d="M0 10L-5 25H5Z"/>
+            </g>
+          </svg>
+          <div class="map-coordinate" id="mapCoordinate">31.2304° N · 121.4737° E</div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric featured">
+            <p>峰值照度</p><strong id="peakLux">--</strong><span>klx</span>
+            <div class="meter"><i id="luxMeter"></i></div>
+          </article>
+          <article class="metric"><p>日出</p><strong id="sunrise">--:--</strong><span>当地时间</span></article>
+          <article class="metric"><p>日落</p><strong id="sunset">--:--</strong><span>当地时间</span></article>
+          <article class="metric"><p>日照时长</p><strong id="daylight">--</strong><span>小时</span></article>
+        </div>
+      </section>
+    </section>
+
+    <section class="chart-section card">
+      <div class="section-heading chart-title">
+        <span>02</span>
+        <div><p>HOURLY ILLUMINANCE</p><h2>逐小时自然光曲线</h2></div>
+        <div class="legend"><i></i> 室外水平照度估算 <b></b> 太阳短波辐照</div>
+      </div>
+      <div id="chart" class="chart" aria-label="逐小时照度折线图"></div>
+      <div class="chart-summary">
+        <div><span>全天平均照度</span><strong id="avgLux">-- klx</strong></div>
+        <div><span>全天太阳能量</span><strong id="solarEnergy">-- kWh/m²</strong></div>
+        <div><span>平均云量</span><strong id="cloudCover">--%</strong></div>
+        <div><span>数据状态</span><strong id="dataStatus" class="status">等待查询</strong></div>
+      </div>
+    </section>
+
+    <section class="explain-grid">
+      <article class="card note-card"><span>↗</span><h3>照度是如何计算的？</h3><p>采用天气模型的水平短波辐照度，并以约 120 lm/W 的日光光效换算为 lux。结果适合趋势参考，不替代专业照度计。</p></article>
+      <article class="card note-card"><span>◌</span><h3>天气会改变光线</h3><p>云层、雾霾、海拔与地表反射都会影响实际照度。预测会随最新气象模型更新，建议在活动前再次查询。</p></article>
+      <article class="card note-card"><span>◎</span><h3>覆盖全球任意坐标</h3><p>可从常用城市快速选择，也可直接输入经纬度。系统自动使用目标地点当地时区展示日出、日落与曲线。</p></article>
+    </section>
+  </main>
+
+  <footer><span>光域 SOLAR ATLAS</span><p>气象数据：Open-Meteo · 照度为模型估算</p></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
