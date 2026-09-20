@@ -1,22 +1,22 @@
 const CITIES = [
-  { name: "中国 · 上海", lat: 31.2304, lon: 121.4737 },
-  { name: "中国 · 北京", lat: 39.9042, lon: 116.4074 },
-  { name: "日本 · 东京", lat: 35.6762, lon: 139.6503 },
-  { name: "新加坡 · 新加坡", lat: 1.3521, lon: 103.8198 },
-  { name: "澳大利亚 · 悉尼", lat: -33.8688, lon: 151.2093 },
-  { name: "阿联酋 · 迪拜", lat: 25.2048, lon: 55.2708 },
-  { name: "埃及 · 开罗", lat: 30.0444, lon: 31.2357 },
-  { name: "肯尼亚 · 内罗毕", lat: -1.2921, lon: 36.8219 },
-  { name: "法国 · 巴黎", lat: 48.8566, lon: 2.3522 },
-  { name: "英国 · 伦敦", lat: 51.5074, lon: -0.1278 },
-  { name: "冰岛 · 雷克雅未克", lat: 64.1466, lon: -21.9426 },
-  { name: "美国 · 纽约", lat: 40.7128, lon: -74.0060 },
-  { name: "美国 · 洛杉矶", lat: 34.0522, lon: -118.2437 },
-  { name: "墨西哥 · 墨西哥城", lat: 19.4326, lon: -99.1332 },
-  { name: "巴西 · 里约热内卢", lat: -22.9068, lon: -43.1729 },
-  { name: "阿根廷 · 布宜诺斯艾利斯", lat: -34.6037, lon: -58.3816 },
-  { name: "自定义坐标", lat: null, lon: null }
+  { name: "德国 · 柏林 Berlin", lat: 52.5200, lon: 13.4050 },
+  { name: "德国 · 汉堡 Hamburg", lat: 53.5511, lon: 9.9937 },
+  { name: "德国 · 慕尼黑 München", lat: 48.1351, lon: 11.5820 },
+  { name: "德国 · 科隆 Köln", lat: 50.9375, lon: 6.9603 },
+  { name: "德国 · 法兰克福 Frankfurt", lat: 50.1109, lon: 8.6821 },
+  { name: "德国 · 斯图加特 Stuttgart", lat: 48.7758, lon: 9.1829 },
+  { name: "德国 · 莱比锡 Leipzig", lat: 51.3397, lon: 12.3731 },
+  { name: "德国 · 德累斯顿 Dresden", lat: 51.0504, lon: 13.7373 },
+  { name: "德国 · 杜塞尔多夫 Düsseldorf", lat: 51.2277, lon: 6.7735 },
+  { name: "德国 · 汉诺威 Hannover", lat: 52.3759, lon: 9.7320 },
+  { name: "德国 · 不来梅 Bremen", lat: 53.0793, lon: 8.8017 },
+  { name: "德国 · 纽伦堡 Nürnberg", lat: 49.4521, lon: 11.0767 },
+  { name: "德国 · 弗赖堡 Freiburg", lat: 47.9990, lon: 7.8421 },
+  { name: "德国地图自定义坐标", lat: null, lon: null }
 ];
+
+const GERMANY_BOUNDS = { minLat: 47.1, maxLat: 55.2, minLon: 5.5, maxLon: 15.5 };
+const MAP_BOUNDS = { left: 72, right: 648, top: 40, bottom: 660 };
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -46,7 +46,7 @@ function init() {
   els.map.addEventListener("click", selectMapPoint);
   els.map.addEventListener("keydown", nudgeMapPoint);
   renderEmptyChart();
-  updateMap(31.2304, 121.4737);
+  updateMap(52.5200, 13.4050);
   loadForecast();
 }
 
@@ -68,16 +68,26 @@ function customCoordinates() {
 }
 
 function validCoordinates(lat, lon) {
-  return Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
+  return Number.isFinite(lat) && Number.isFinite(lon)
+    && lat >= GERMANY_BOUNDS.minLat && lat <= GERMANY_BOUNDS.maxLat
+    && lon >= GERMANY_BOUNDS.minLon && lon <= GERMANY_BOUNDS.maxLon;
 }
 
 function updateMap(lat, lon) {
-  const x = ((lon + 180) / 360) * 1000;
-  const y = ((90 - lat) / 180) * 460;
+  const { x, y } = projectGermany(lat, lon);
   els.marker.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
   els.glow.setAttribute("cx", x.toFixed(1));
   els.glow.setAttribute("cy", y.toFixed(1));
   els.coordinate.textContent = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"} · ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? "E" : "W"}`;
+}
+
+function projectGermany(lat, lon) {
+  const xRatio = (lon - GERMANY_BOUNDS.minLon) / (GERMANY_BOUNDS.maxLon - GERMANY_BOUNDS.minLon);
+  const yRatio = (GERMANY_BOUNDS.maxLat - lat) / (GERMANY_BOUNDS.maxLat - GERMANY_BOUNDS.minLat);
+  return {
+    x: MAP_BOUNDS.left + xRatio * (MAP_BOUNDS.right - MAP_BOUNDS.left),
+    y: MAP_BOUNDS.top + yRatio * (MAP_BOUNDS.bottom - MAP_BOUNDS.top)
+  };
 }
 
 function mapPointFromEvent(event) {
@@ -87,12 +97,14 @@ function mapPointFromEvent(event) {
   const matrix = els.mapSvg.getScreenCTM();
   if (!matrix) return null;
   const local = point.matrixTransform(matrix.inverse());
-  if (local.x < 0 || local.x > 1000 || local.y < 0 || local.y > 460) return null;
+  if (local.x < MAP_BOUNDS.left || local.x > MAP_BOUNDS.right || local.y < MAP_BOUNDS.top || local.y > MAP_BOUNDS.bottom) return null;
+  const xRatio = (local.x - MAP_BOUNDS.left) / (MAP_BOUNDS.right - MAP_BOUNDS.left);
+  const yRatio = (local.y - MAP_BOUNDS.top) / (MAP_BOUNDS.bottom - MAP_BOUNDS.top);
   return {
     x: local.x,
     y: local.y,
-    lat: 90 - (local.y / 460) * 180,
-    lon: (local.x / 1000) * 360 - 180
+    lat: GERMANY_BOUNDS.maxLat - yRatio * (GERMANY_BOUNDS.maxLat - GERMANY_BOUNDS.minLat),
+    lon: GERMANY_BOUNDS.minLon + xRatio * (GERMANY_BOUNDS.maxLon - GERMANY_BOUNDS.minLon)
   };
 }
 
@@ -115,13 +127,13 @@ function nudgeMapPoint(event) {
   event.preventDefault();
   let lat = Number(els.latitude.value);
   let lon = Number(els.longitude.value);
-  const step = event.shiftKey ? 5 : 1;
+  const step = event.shiftKey ? 1 : 0.1;
   if (event.key === "ArrowUp") lat += step;
   if (event.key === "ArrowDown") lat -= step;
   if (event.key === "ArrowLeft") lon -= step;
   if (event.key === "ArrowRight") lon += step;
-  lat = Math.max(-90, Math.min(90, lat));
-  lon = ((lon + 180 + 360) % 360) - 180;
+  lat = Math.max(GERMANY_BOUNDS.minLat, Math.min(GERMANY_BOUNDS.maxLat, lat));
+  lon = Math.max(GERMANY_BOUNDS.minLon, Math.min(GERMANY_BOUNDS.maxLon, lon));
   applyMapSelection(lat, lon, false);
 }
 
@@ -142,7 +154,7 @@ function formatCoordinate(value, latitude) {
 async function loadForecast() {
   const lat = Number(els.latitude.value);
   const lon = Number(els.longitude.value);
-  if (!validCoordinates(lat, lon)) return showToast("请输入有效经纬度：纬度 -90～90，经度 -180～180。", true);
+  if (!validCoordinates(lat, lon)) return showToast("请输入德国范围内的坐标：纬度 47.1～55.2，经度 5.5～15.5。", true);
 
   setLoading(true);
   updateMap(lat, lon);
@@ -285,6 +297,11 @@ function useLocation() {
   if (!navigator.geolocation) return showToast("当前浏览器不支持定位。", true);
   els.locate.disabled = true;
   navigator.geolocation.getCurrentPosition(pos => {
+    if (!validCoordinates(pos.coords.latitude, pos.coords.longitude)) {
+      els.locate.disabled = false;
+      showToast("检测到当前位置不在德国范围内，请从德国地图中选择地点。", true);
+      return;
+    }
     els.latitude.value = pos.coords.latitude.toFixed(4);
     els.longitude.value = pos.coords.longitude.toFixed(4);
     els.city.value = String(CITIES.length - 1);
@@ -308,18 +325,21 @@ function startClock(offsetSeconds) {
 }
 
 function updateSunPoint(now) {
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const day = Math.floor((now.getTime() - start) / 86400000);
-  const declination = 23.44 * Math.sin((2 * Math.PI / 365) * (day - 81));
-  const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
-  let longitude = 180 - utcHours * 15;
-  if (longitude > 180) longitude -= 360;
-  if (longitude < -180) longitude += 360;
-  const x = ((longitude + 180) / 360) * 1000;
-  const y = ((90 - declination) / 180) * 460;
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit", hour12: false
+  }).formatToParts(now);
+  const hour = Number(parts.find(part => part.type === "hour")?.value || 0) % 24;
+  const minute = Number(parts.find(part => part.type === "minute")?.value || 0);
+  const localHours = hour + minute / 60;
+  const progress = Math.max(0, Math.min(1, (localHours - 5.5) / 15));
+  const x = 105 + progress * 510;
+  const y = 135 - Math.sin(progress * Math.PI) * 80;
+  const isDayArc = localHours >= 5.5 && localHours <= 20.5;
   els.sunMarker.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
   els.sunHalo.setAttribute("cx", x.toFixed(1));
   els.sunHalo.setAttribute("cy", y.toFixed(1));
+  els.sunMarker.style.opacity = isDayArc ? "1" : ".25";
+  els.sunHalo.style.opacity = isDayArc ? ".76" : ".12";
 }
 
 function setLoading(loading) {

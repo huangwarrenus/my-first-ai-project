@@ -85,6 +85,7 @@ select { appearance: none; }
 .local-clock span { display: block; font-size: 10px; color: var(--muted); }
 .local-clock strong { font-size: 25px; font-variant-numeric: tabular-nums; }
 .world-map { height: 330px; position: relative; margin: 10px -5px 0; border-radius: 18px; cursor: crosshair; outline: none; overflow: hidden; }
+.world-map.germany-map { height: 455px; }
 .world-map:focus-visible { box-shadow: 0 0 0 3px rgba(185,228,61,.65); }
 .world-map svg { width: 100%; height: 100%; display: block; }
 .map-ocean { stroke: rgba(7,37,67,.09); stroke-width: 2; }
@@ -94,6 +95,9 @@ select { appearance: none; }
 .continents path { fill: rgba(27,88,126,.14); stroke: rgba(7,37,67,.36); stroke-width: 1.4; stroke-linejoin: round; transition: fill .25s; }
 .world-map:hover .continents path { fill: rgba(27,88,126,.2); }
 .coast-detail path { fill: none; stroke: rgba(7,37,67,.18); stroke-width: 1; stroke-linecap: round; }
+.state-borders path { fill: none; stroke: rgba(255,255,255,.72); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.city-points circle { r: 4; fill: var(--ink); stroke: white; stroke-width: 2; }
+.city-points text { fill: var(--ink); font-size: 11px; font-weight: 700; paint-order: stroke; stroke: rgba(255,255,255,.85); stroke-width: 3px; stroke-linejoin: round; }
 .sun-layer { pointer-events: none; }
 .sun-layer > circle { opacity: .76; }
 .sun-layer g circle { fill: var(--sun); stroke: rgba(120,74,0,.35); stroke-width: 1.5; }
@@ -175,6 +179,7 @@ footer span { color: white; font-weight: 800; letter-spacing: .1em; }
   .control-panel { display: block; }
   .visual-panel { padding: 20px 16px; }
   .world-map { height: 240px; }
+  .world-map.germany-map { height: 420px; }
   .metric-grid { grid-template-columns: 1fr 1fr; }
   .metric { min-height: 90px; }
   .chart-section { padding: 24px 16px; }

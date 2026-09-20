@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="查看世界各地每日阳光照度、日出日落与逐小时太阳辐照预测。" />
-  <title>光域 · 全球阳光照度</title>
+  <meta name="description" content="查看德国各地每日阳光照度、日出日落与逐小时太阳辐照预测。" />
+  <title>光域 · 德国阳光照度</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,7 +14,7 @@
   <header class="topbar">
     <a class="brand" href="#" aria-label="光域首页">
       <span class="brand-wordmark">光域<span>.</span></span>
-      <small>SOLAR ATLAS</small>
+      <small>DEUTSCHLAND SOLAR</small>
     </a>
     <div class="live-badge"><span></span> 实时太阳数据</div>
   </header>
@@ -22,9 +22,9 @@
   <main>
     <section class="hero">
       <div>
-        <p class="eyebrow">GLOBAL DAYLIGHT INTELLIGENCE</p>
-        <h1>看见今天的<br><em>每一束光</em><i>.</i></h1>
-        <p class="hero-copy">探索世界任意坐标的逐小时室外自然光照度，结合太阳位置与实时天气预报，帮助你安排摄影、建筑采光与户外活动。</p>
+        <p class="eyebrow">DEUTSCHLAND DAYLIGHT INTELLIGENCE</p>
+        <h1>看见德国的<br><em>每一束光</em><i>.</i></h1>
+        <p class="hero-copy">探索德国各城市与任意坐标的逐小时室外自然光照度，结合太阳位置与实时天气预报，帮助你安排光伏发电、建筑采光与户外活动。</p>
       </div>
       <div class="sun-orbit" aria-hidden="true">
         <div class="sun-core"></div>
@@ -41,7 +41,7 @@
           <div><p>OBSERVATION POINT</p><h2>观测地点</h2></div>
         </div>
 
-        <label for="citySelect">快速选择城市</label>
+        <label for="citySelect">快速选择德国城市</label>
         <div class="select-wrap">
           <select id="citySelect"></select>
         </div>
@@ -49,11 +49,11 @@
         <div class="coord-grid">
           <div>
             <label for="latitude">纬度</label>
-            <input id="latitude" type="number" min="-90" max="90" step="0.0001" value="31.2304" />
+            <input id="latitude" type="number" min="47.1" max="55.2" step="0.0001" value="52.5200" />
           </div>
           <div>
             <label for="longitude">经度</label>
-            <input id="longitude" type="number" min="-180" max="180" step="0.0001" value="121.4737" />
+            <input id="longitude" type="number" min="5.5" max="15.5" step="0.0001" value="13.4050" />
           </div>
         </div>
 
@@ -76,61 +76,54 @@
         <div class="panel-topline">
           <div>
             <p class="eyebrow">LIVE SOLAR MAP</p>
-            <h2 id="locationTitle">中国 · 上海</h2>
+            <h2 id="locationTitle">德国 · 柏林</h2>
           </div>
           <div class="local-clock"><span>当地时间</span><strong id="localClock">--:--</strong></div>
         </div>
 
-        <div class="world-map" id="worldMap" tabindex="0" role="application" aria-label="交互式世界地图。点击地图可选择观测地点，方向键可微调位置。">
-          <svg id="mapSvg" viewBox="0 0 1000 460" role="img" aria-label="世界地图上的选定地点">
+        <div class="world-map germany-map" id="worldMap" tabindex="0" role="application" aria-label="交互式德国地图。点击地图可选择观测地点，方向键可微调位置。">
+          <svg id="mapSvg" viewBox="0 0 720 700" role="img" aria-label="德国地图上的选定地点">
             <defs>
               <radialGradient id="locationGlowGradient"><stop offset="0" stop-color="#ffd36a" stop-opacity=".26"/><stop offset="1" stop-color="#ffd36a" stop-opacity="0"/></radialGradient>
               <radialGradient id="sunGlow"><stop offset="0" stop-color="#fff0a0" stop-opacity=".7"/><stop offset=".35" stop-color="#ffd05a" stop-opacity=".23"/><stop offset="1" stop-color="#ffd05a" stop-opacity="0"/></radialGradient>
               <linearGradient id="oceanGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7f9f3"/><stop offset="1" stop-color="#e8eee6"/></linearGradient>
             </defs>
-            <rect class="map-ocean" x="1" y="1" width="998" height="458" rx="18" fill="url(#oceanGradient)"/>
+            <rect class="map-ocean" x="1" y="1" width="718" height="698" rx="24" fill="url(#oceanGradient)"/>
             <g class="grid-lines">
-              <path d="M0 77H1000M0 153H1000M0 230H1000M0 307H1000M0 383H1000" />
-              <path d="M83 0V460M167 0V460M250 0V460M333 0V460M417 0V460M500 0V460M583 0V460M667 0V460M750 0V460M833 0V460M917 0V460" />
-              <path class="equator" d="M0 230H1000" />
+              <path d="M0 56H720M0 290H720M0 523H720" />
+              <path d="M108 0V700M276 0V700M444 0V700M612 0V700" />
             </g>
             <g class="map-labels" aria-hidden="true">
-              <text x="12" y="224">赤道 0°</text><text x="12" y="148">30°N</text><text x="12" y="302">30°S</text>
-              <text x="245" y="447">90°W</text><text x="495" y="447">0°</text><text x="738" y="447">90°E</text>
+              <text x="12" y="51">55°N</text><text x="12" y="285">52°N</text><text x="12" y="518">49°N</text>
+              <text x="97" y="686">6°E</text><text x="265" y="686">9°E</text><text x="430" y="686">12°E</text><text x="597" y="686">15°E</text>
             </g>
-            <g id="sunLayer" class="sun-layer" aria-label="太阳直射点">
-              <circle id="sunHalo" cx="500" cy="230" r="150" fill="url(#sunGlow)"/>
-              <g id="sunMarker" transform="translate(500 230)"><circle r="6"/><path d="M0-12V-17M0 12V17M-12 0H-17M12 0H17M-8-8L-12-12M8 8L12 12M8-8L12-12M-8 8L-12 12"/></g>
+            <g id="sunLayer" class="sun-layer" aria-label="德国当地太阳轨迹">
+              <circle id="sunHalo" cx="360" cy="120" r="175" fill="url(#sunGlow)"/>
+              <g id="sunMarker" transform="translate(360 90)"><circle r="7"/><path d="M0-13V-19M0 13V19M-13 0H-19M13 0H19M-9-9L-14-14M9 9L14 14M9-9L14-14M-9 9L-14 14"/></g>
             </g>
-            <g class="continents">
-              <path class="north-america" d="M55 92L91 55l49-11 28-27 42 12 23 31 57 12 37 31-9 27-30 9-15 29-29 6-18 40-29 21-22-19-17-35-39-10-7-24-43-20z"/>
-              <path class="central-america" d="M199 218l29 3 17 17 20 10-5 15-29-8-21-17z"/>
-              <path class="south-america" d="M251 258l42 7 26 24 10 38-18 36-8 50-27 34-19-24-8-46-24-42 3-49z"/>
-              <path class="greenland" d="M285 31l44-17 35 15-13 51-42 12-27-25z"/>
-              <path class="europe" d="M449 91l25-26 29 8 12-13 29 14 1 25-28 8-6 24-35 9-38-18z"/>
-              <path class="asia" d="M526 73l47-29 59 9 23 22 56-5 44 23 70 17 58 39-13 27-45 6-21 26-52-4-26 28-37-9-24 25-39-14-25-35-47-23-15-43-35-18z"/>
-              <path class="africa" d="M477 151l49-17 51 25 25 46-12 62-34 66-33-3-18-46-29-38-14-61z"/>
-              <path class="arabia" d="M579 184l43 13 21 38-36 18-27-25z"/>
-              <path class="india" d="M660 202l34 16-9 57-20 25-13-51z"/>
-              <path class="se-asia" d="M715 226l29 13 23 30-16 11-21-24-20-9z"/>
-              <path class="japan" d="M839 166l7 21-10 23-7-8 5-17z"/>
-              <path class="australia" d="M784 314l50-25 60 13 27 35-12 48-49 26-60-22-22-37z"/>
-              <path class="new-zealand" d="M932 362l9 24-8 24-8-19z"/>
-              <path class="madagascar" d="M604 307l10 16-7 35-10-10z"/>
-              <path class="antarctica" d="M54 432l84-12 82 10 90-12 92 14 100-11 95 12 99-13 99 11 103-9 64 17-35 20H91z"/>
+            <g class="continents germany-shape">
+              <path d="M270 32L319 45l30 30 62-5 31 32 52 10 18 42 58 24-9 49 34 42-25 46 26 39-22 53 21 39-30 38 2 52-41 22-18 52-49 16-23 47-50 16-31 28-46-14-43 16-31-27-51 8-33-35-44-4-12-43-38-27 15-48-29-42 24-40-31-44 31-40-13-45 38-29 3-48 46-15 17-42 50 1 25-30z"/>
             </g>
-            <g class="coast-detail" aria-hidden="true">
-              <path d="M123 83l25 29 39 4M164 181l43-3M280 291l23 45-10 45M493 112l24-5M532 168l34 32-9 56M629 120l31 29 40 4M742 114l28 31M813 330l43-13 42 22"/>
+            <g class="state-borders" aria-hidden="true">
+              <path d="M272 93l70 33 85-18 53 48M223 163l63 38 98-25 71 50 91 4M166 256l89 20 44 60 93-17 71 34 82-20M157 365l81 18 64-38 70 57 84-18 89 44M132 459l90 12 57 57 89-34 81 42 79-18M168 552l92 7 56 59 85-31 72 13"/>
             </g>
-            <circle id="mapGlow" class="map-glow" cx="837" cy="151" r="90" fill="url(#locationGlowGradient)"/>
-            <g id="mapMarker" class="map-marker" transform="translate(837 151)">
+            <g class="city-points" aria-hidden="true">
+              <g transform="translate(528 245)"><circle/><text x="10" y="4">柏林 Berlin</text></g>
+              <g transform="translate(325 150)"><circle/><text x="10" y="4">汉堡</text></g>
+              <g transform="translate(390 590)"><circle/><text x="10" y="4">慕尼黑</text></g>
+              <g transform="translate(145 390)"><circle/><text x="10" y="4">科隆</text></g>
+              <g transform="translate(245 455)"><circle/><text x="10" y="4">法兰克福</text></g>
+              <g transform="translate(450 355)"><circle/><text x="10" y="4">莱比锡</text></g>
+            </g>
+            <circle id="mapGlow" class="map-glow" cx="528" cy="245" r="90" fill="url(#locationGlowGradient)"/>
+            <g id="mapMarker" class="map-marker" transform="translate(528 245)">
               <circle r="20" class="marker-wave"/><circle r="11" class="marker-ring"/><circle r="6" class="marker-dot"/><path d="M0 9L-5 23H5Z"/>
             </g>
             <g id="mapCursor" class="map-cursor" transform="translate(-50 -50)" aria-hidden="true"><path d="M-9 0H9M0-9V9"/><circle r="13"/></g>
           </svg>
-          <div class="map-coordinate" id="mapCoordinate">31.2304° N · 121.4737° E</div>
+          <div class="map-coordinate" id="mapCoordinate">52.5200° N · 13.4050° E</div>
           <div class="map-hover-coordinate" id="mapHoverCoordinate">移动光标查看坐标</div>
-          <div class="map-hint"><span>＋</span> 点击地图选择地点</div>
+          <div class="map-hint"><span>＋</span> 点击德国地图选择地点</div>
         </div>
 
         <div class="metric-grid">
@@ -163,11 +156,11 @@
     <section class="explain-grid">
       <article class="card note-card"><span>↗</span><h3>照度是如何计算的？</h3><p>采用天气模型的水平短波辐照度，并以约 120 lm/W 的日光光效换算为 lux。结果适合趋势参考，不替代专业照度计。</p></article>
       <article class="card note-card"><span>◌</span><h3>天气会改变光线</h3><p>云层、雾霾、海拔与地表反射都会影响实际照度。预测会随最新气象模型更新，建议在活动前再次查询。</p></article>
-      <article class="card note-card"><span>◎</span><h3>覆盖全球任意坐标</h3><p>可从常用城市快速选择，也可直接输入经纬度。系统自动使用目标地点当地时区展示日出、日落与曲线。</p></article>
+      <article class="card note-card"><span>◎</span><h3>覆盖德国全境</h3><p>可从德国主要城市快速选择，也可在地图内直接点击坐标。系统统一使用德国当地时间展示日出、日落与曲线。</p></article>
     </section>
   </main>
 
-  <footer><span>光域 SOLAR ATLAS</span><p>气象数据：Open-Meteo · 照度为模型估算</p></footer>
+  <footer><span>光域 DEUTSCHLAND SOLAR</span><p>德国气象数据：Open-Meteo · 照度为模型估算</p></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="app.js"></script>
